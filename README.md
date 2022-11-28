@@ -34,6 +34,7 @@ How to run:
 >> docker network inspect recnet
 ```
 and set the proper IP in every docker
+
 5) Activate the client screen 
 ```
 >> screen -r client
