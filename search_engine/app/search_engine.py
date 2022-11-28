@@ -6,7 +6,6 @@ class Search_engine:
         with open("/app/item_embeddings.pickle", "rb") as file:
             data = pickle.load(file)
         d = data.shape[1]
-        data = data.detach().numpy()
         self.index = faiss.IndexFlatIP(d)
         self.index.add(data)
 

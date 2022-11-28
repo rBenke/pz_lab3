@@ -1,4 +1,4 @@
 docker run --rm -it \
 	--network recnet \
-	-v /home/rbenke/repo/recSys/model/app:/app \
+	-v $(pwd)/../app:/app \
 	--name model_docker model_img

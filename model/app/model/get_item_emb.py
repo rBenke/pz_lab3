@@ -1,36 +1,28 @@
 import pickle as p
 from tqdm import tqdm
 import numpy as np 
-from ogb.nodeproppred import PygNodePropPredDataset
-from torch_geometric.loader import NeighborLoader
-import torch_geometric.transforms as T
+from torch_geometric.data import Data
 import torch
+import numpy as np
 from model import RecGCN
-from torch_geometric.utils import index_to_mask
-def save_all_emb(model, loader):
+def save_all_emb(model):
     model.eval()
     embeddings = []
-    for data in tqdm(loader):
-        embeddings.append(model.encode_item(data.x, data.adj_t))
+    for _ in range(100):
+        data = generate_data()
+        embeddings.append(model.encode_item(data.x, data.edge_index))
     embeddings = torch.cat(embeddings)
     embeddings = embeddings.detach().numpy()
-    with open("/app/item_embeddings.pickle", "wb") as file:
+    with open("/app/model/item_embeddings.pickle", "wb") as file:
         p.dump(embeddings, file)
 
-def load_data():
-    dataset = PygNodePropPredDataset(name = "ogbn-products", root="/app/model/data")
-    dataloader = NeighborLoader(
-        dataset[0],
-        num_neighbors=[-1],
-        batch_size=10_000,
-        transform = T.ToSparseTensor(),
-        input_nodes = index_to_mask(torch.Tensor(range(2_000_000, dataset[0]["num_nodes"])).to(dtype = torch.long), size = dataset[0]["num_nodes"])
-    )
-   #index_to_mask(dataset.get_idx_split()['train'],size = 3000000 ) 
-    return dataloader
+def generate_data():
+    x = np.random.rand(1_000,100)
+    edge_index = np.random.randint(0,999,(2,10_000)) 
+    data = Data(x = torch.Tensor(x), edge_index = torch.tensor(edge_index))
+    return data
 
 if __name__=="__main__":
     model = RecGCN()
     model.load_state_dict(torch.load("/app/model/saved_model"))
-    loader = load_data()
-    save_all_emb(model, loader)
+    save_all_emb(model)

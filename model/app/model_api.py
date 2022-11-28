@@ -24,7 +24,10 @@ def get_neighbourhood(client_id):
         print("Database doesn;t response properly")
         return None,None
     edges = eval(message.text)
-    
+    if not len(edges):
+        x = torch.rand(1,100, dtype = torch.float)
+        edge_index = torch.rand(2,0).to(torch.long)
+        return Data(x = x, edge_index = edge_index), 0
     rename_edges = list(set([int(client_id)]+[edge[0]  for edge in edges]))
     mapping = dict(zip(rename_edges, range(len(rename_edges))))
     edges = [[mapping[edge[0]], mapping[edge[1]]] for edge in edges]
